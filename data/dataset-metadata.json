@@ -1,6 +1,6 @@
 {
-  "title": "Shakespeare for NLP: 91K Tagged Lines",
-  "id": "USERNAME/shakespeare-for-nlp-tagged-lines",
+  "title": "Shakespeare plays for NLP: 91K Tagged Lines",
+  "id": "ismailalshofi/shakespeare-for-nlp-91k-tagged-lines",
   "subtitle": "Per-line dialogue from all 37 plays — Folger edition, ready for tokenizer training, speaker classification, and LM demos",
   "description": "See README.md inside the dataset for full details.",
   "licenses": [

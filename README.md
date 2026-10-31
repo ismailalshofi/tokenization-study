@@ -54,11 +54,11 @@ Both tokenizers feed into the **same** small Transformer decoder language model 
 
 ## 5. Dataset
 
-The study trains on **[Shakespeare for NLP: 91K Tagged Lines](https://www.kaggle.com/datasets/ismailalshofi/shakespeare-for-nlp-91k-tagged-lines)** — a structured CSV we prepared and published on Kaggle as part of this project.
+The study trains on **[Shakespeare plays for NLP: 91K Tagged Lines](https://www.kaggle.com/datasets/ismailalshofi/shakespeare-for-nlp-91k-tagged-lines)**, a structured CSV I prepared and published on Kaggle as part of this project.
 
 - **Live dataset:** <https://www.kaggle.com/datasets/ismailalshofi/shakespeare-for-nlp-91k-tagged-lines>
 - **What's in it:** 91,509 spoken lines across all 37 plays, with `play / play_title / act / scene / player / line_number / line_text` columns. 956 unique speakers, ~9 MB UTF-8.
-- **How we prepared it:** sourced the Folger Shakespeare Library's TEI XML edition via the [dracor-org/shakedracor](https://github.com/dracor-org/shakedracor) mirror, parsed each play (`<div type="act">` → `<div type="scene">` → `<sp>` → `<l>`/`<p>`), dropped stage directions, normalised whitespace, and emitted one row per spoken line. Smart punctuation from the Folger edition is preserved.
+- **How I prepared it:** sourced the Folger Shakespeare Library's TEI XML edition via the [dracor-org/shakedracor](https://github.com/dracor-org/shakedracor) mirror, parsed each play (`<div type="act">` → `<div type="scene">` → `<sp>` → `<l>`/`<p>`), dropped stage directions, normalised whitespace, and emitted one row per spoken line. Smart punctuation from the Folger edition is preserved.
 - **License:** the underlying Folger text is CC BY-NC 3.0 (non-commercial, with attribution).
 
 The prepared CSV ships with this repo at [`data/shakespeare_lines.csv`](data/shakespeare_lines.csv) and is loaded by [`src/utils.py`](src/utils.py)'s `load_corpus()`. **The project consumes this CSV directly — no runtime fetching, no rebuild step.**
