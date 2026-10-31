@@ -10,7 +10,3 @@ MEDIUM_ARTICLE.md
 # experiment artifacts: keep plots, metrics and samples, drop checkpoints
 *.pt
 results/*_smoke/
-
-# pilot-run leftovers, replaced by the full runs
-results/loss_curves.png
-results/char/vocab.json

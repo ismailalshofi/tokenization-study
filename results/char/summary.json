@@ -1,0 +1,12 @@
+{
+  "tokenizer": "char",
+  "vocab_size": 97,
+  "n_params": 3274752,
+  "chars_per_token": 1.0,
+  "steps": 2000,
+  "device": "cuda",
+  "val_loss": 1.6637326538562776,
+  "val_perplexity": 5.2789787151930305,
+  "val_bpc": 2.400258849083486,
+  "train_time_s": 313.0452027320862
+}

@@ -36,7 +36,7 @@ This study isolates that choice by training the **same architecture** on the **s
 | Axis              | Character-level                 | Subword (BPE)                    |
 | ----------------- | ------------------------------- | -------------------------------- |
 | Unit              | individual characters           | merged byte-pair units           |
-| Vocabulary size   | very small (~70)                | configurable (e.g. 8k)           |
+| Vocabulary size   | very small (97 here)            | configurable (8k here)           |
 | Sequence length   | long                            | short                            |
 | OOV               | none                            | none (byte-fallback)             |
 | Used in           | early RNN LMs, ByT5             | GPT, BERT, LLaMA, etc.           |
@@ -116,18 +116,45 @@ No GPU? [`notebooks/kaggle_run.ipynb`](notebooks/kaggle_run.ipynb) runs both tra
 bpc = loss_nats_per_token / ln(2) / chars_per_token
 ```
 
-A pilot run shows why this matters. After 100 steps the char model's val loss was **2.51** and the subword model's was **6.00**, which looks like a clear win for characters. In bpc it reverses: **3.63** for char vs **2.75** for subword.
+The full runs show why this matters. The char model's val loss is **1.66** and the subword model's is **4.53**, which looks like a clear win for characters. In bpc it reverses: **2.40** for char vs **2.08** for subword.
 
 ### Known confounds
 
-- **Parameter count.** The embedding and output layers scale with vocabulary size, so at `n_embd=256` the subword model (8k vocab) has ~4M more parameters than the char model (~100 symbols). Both counts are recorded in `summary.json`.
-- **Context in characters.** Both models use `block_size=256` *tokens*, which is ~256 characters for char and ~800 for subword. The subword model sees more text per example.
+- **Parameter count.** The embedding and output layers scale with vocabulary size, so the subword model (8k vocab) has 7.3M parameters against 3.3M for the char model (97 symbols). The Transformer blocks in the middle are identical.
+- **Context in characters.** Both models use `block_size=256` *tokens*, which is 256 characters for char and ~800 for subword. The subword model sees about 3x more text per step.
 
-These are inherent to the comparison rather than bugs, and they're reported next to the results instead of being hidden.
+These are part of the comparison, not bugs, so the results are reported next to them instead of hiding them.
 
 ## 9. Results
 
-*Full 2000-step runs are in progress. This section will hold the bpc table, loss curves and generation samples.*
+Both models trained for 2000 steps on a Kaggle T4 GPU with the same settings (4 layers, 4 heads, 256-dim embeddings, context 256, batch 64, AdamW 3e-4).
+
+| | char | subword (BPE 8k) |
+|---|---|---|
+| Parameters | 3.3M | 7.3M |
+| Characters per token (val) | 1.00 | 3.15 |
+| Val loss (nats / token) | 1.66 | 4.53 |
+| **Val bits per character** | 2.40 | **2.08** |
+| Training time | 313 s | 450 s |
+
+![Validation bpc per step and per second of training](results/loss_curves.png)
+
+### Key insights
+
+- **Subword wins, but raw loss says the opposite.** 2.08 vs 2.40 bpc, about 13% fewer bits per character. The per-token loss (4.53 vs 1.66) would have pointed the wrong way.
+- **Most of the win is extra text per step.** At the same training time subword still wins (2.14 vs 2.40). At the same amount of text seen, the gap almost closes (**2.35 vs 2.40**). With the same 256-token context, each subword step simply reads ~3x more Shakespeare.
+- **Subword is bigger, slower and overfits first.** 2.2x the parameters, all in the embedding and output layers. Each step is ~44% slower, and its train/val gap is 0.19 bpc against 0.07 for char.
+- **The char model hasn't converged.** It was still improving twice as fast as subword at the end of training, so a longer run would likely narrow the gap.
+- **They make different mistakes.** Char invents words (*dwarwick*, *deservity*) but gets the shape of the page right. Subword only uses real words and real character names (Brutus, Iago, Desdemona) but loses the thread after a line or two.
+
+| char | subword |
+|---|---|
+| `TONIOLANUS:`<br>`For you action, must deservity, liked.` | `IAGO:`<br>`You shall not go.` |
+| `KING:`<br>`Of Where you as a false helphed my knave` | `LEONTES:`<br>`My father did it.` |
+
+**Bottom line:** tokenization is not preprocessing. It decides how big the model is, how much text each step sees, what kind of mistakes it makes, and what a fair comparison even is. The full walk-through is in [`notebooks/experiment.ipynb`](notebooks/experiment.ipynb).
+
+**Next steps:** match the context in characters instead of tokens, tie the embedding and output weights so the parameter counts are closer, and train longer to see where the char curve flattens.
 
 ## 10. License
 
