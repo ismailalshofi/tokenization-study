@@ -1,0 +1,31 @@
+{
+  "title": "Shakespeare for NLP: 91K Tagged Lines",
+  "id": "USERNAME/shakespeare-for-nlp-tagged-lines",
+  "subtitle": "Per-line dialogue from all 37 plays — Folger edition, ready for tokenizer training, speaker classification, and LM demos",
+  "description": "See README.md inside the dataset for full details.",
+  "licenses": [
+    {"name": "other"}
+  ],
+  "keywords": [
+    "nlp",
+    "language",
+    "literature",
+    "shakespeare",
+    "text mining",
+    "tokenization",
+    "llm",
+    "tabular",
+    "deep learning",
+    "classification",
+    "english",
+    "gpt",
+    "humanities"
+  ],
+  "collaborators": [],
+  "resources": [
+    {
+      "path": "shakespeare_lines.csv",
+      "description": "**91,509 spoken lines** from all 37 of Shakespeare's plays — one row per line. UTF-8 encoded, ~8.9 MB. Folger Shakespeare edition (CC BY-NC 3.0).\n\n**Schema**\n\n| Column | Type | Notes |\n| --- | --- | --- |\n| `play` | str | Play slug, e.g. `hamlet`, `romeo-and-juliet` |\n| `play_title` | str | Display title, e.g. `Hamlet`, `Romeo and Juliet` |\n| `act` | int | Act number (1–5) |\n| `scene` | int | Scene number within the act |\n| `player` | str | Speaker in UPPERCASE, e.g. `HAMLET`, `LADY MACBETH` |\n| `line_number` | str | Folger reference `act.scene.line` (e.g. `1.1.2`). Empty for partial / shared lines that don't anchor a full verse line. |\n| `line_text` | str | Spoken text. Stage directions removed; Folger smart punctuation preserved. |\n\n**Quick start**\n\n```python\nimport pandas as pd\ndf = pd.read_csv('shakespeare_lines.csv')\n\n# pull a single scene\ndf[(df.play == 'hamlet') & (df.act == 3) & (df.scene == 1)]\n\n# top 10 most prolific speakers\ndf['player'].value_counts().head(10)\n\n# all of Hamlet's lines as one string\n'\\n'.join(df[df.player == 'HAMLET']['line_text'])\n```\n\n**Heads-up**\n\n- **Row order matters** within `(play, act, scene)` — preserved from the source, so sequence-style use cases work even when `line_number` is empty.\n- **Speaker labels are raw:** `KING`, `KING HENRY`, `KING HENRY V` are distinct values across plays. Normalize if you need a single canonical character identity. (956 unique labels in total.)\n- **No `<unk>` / missing-data sentinels** — empty `player` (50 rows) and empty `line_number` (~11K rows) come through as standard NaN."
+    }
+  ]
+}
